@@ -2,6 +2,7 @@ import { Column, Row, ValueType } from "../../types";
 import UtilityContext from "./contexts/UtilityContext";
 import { ChevronDown } from "./Icons";
 import { useState, useRef } from "react";
+import HeaderContext from "./contexts/HeaderContext";
 
 export interface THeadProps<T> {
   rows: Row<T>[];
@@ -13,6 +14,7 @@ export interface THeadProps<T> {
   handleSort: (key: keyof T, direction: "asc" | "desc") => void;
   inclusions: string[];
   setInclusions: (inclusions: string[]) => void;
+  handleAliasClick: (column: string) => void;
 }
 
 const Thead = <T,>({
@@ -24,9 +26,12 @@ const Thead = <T,>({
   handleSort,
   inclusions,
   setInclusions,
+  handleAliasClick,
 }: THeadProps<T>) => {
   const [showUtilityContext, setShowUtilityContext] = useState(false);
+  const [showHeaderContext, setShowHeaderContext] = useState(false);
   const utilityRef = useRef<HTMLDivElement>(null);
+  const headerContextRef = useRef<HTMLDivElement>(null);
 
   const closeUtilityContext = () => {
     setShowUtilityContext(false);
@@ -36,11 +41,23 @@ const Thead = <T,>({
     }
   };
 
-  const setShowContextMenu = () => {
-    setShowUtilityContext(true);
-    if (utilityRef.current) {
-      utilityRef.current.setAttribute("data-display", "open");
+  const setShowContextMenu = (
+    e: React.MouseEvent<HTMLDivElement>,
+    r: Row<T>
+  ) => {
+    const headerDiv = document.querySelector('[query-id="table-header"]');
+    const c: Column<T> = {
+      label: r.label,
+    };
+    setColumn(c);
+
+    if (headerContextRef.current && headerDiv) {
+      const rect = headerDiv.getBoundingClientRect();
+      headerContextRef.current.style.top = `${rect.bottom}px`;
+      headerContextRef.current.style.left = `${e.clientX}px`;
+      headerContextRef.current.setAttribute("data-display", "open");
     }
+    setShowHeaderContext(true);
   };
 
   const handleSortDirection = (c: Row<T>) => {
@@ -71,12 +88,18 @@ const Thead = <T,>({
     }, 500);
   };
 
+  const getColumns = () => {
+    if (values.length > 0) {
+      return "grid-cols-" + (values.length + 1).toString();
+    } else {
+      return "grid-cols-1";
+    }
+  };
+
   return (
     <div>
       <div
-        className={`relative grid grid-cols-${
-          values.length + 1
-        } font-medium text-lg border-b gap-4 pl-2`}
+        className={`relative grid ${getColumns()} font-medium text-lg border-b gap-4 pl-2`}
       >
         {rows.map((r, i) => {
           if (i > 0) {
@@ -88,11 +111,12 @@ const Thead = <T,>({
           }
           return (
             <div
-              className="flex gap-4 border-r"
+              query-id="table-header"
+              className="flex gap-4 border-r cursor-context"
               key={`th-${i}`}
               onContextMenu={(e) => {
                 e.preventDefault();
-                setShowContextMenu();
+                setShowContextMenu(e, r);
               }}
             >
               <span> {r.label.toString()}</span>
@@ -109,11 +133,12 @@ const Thead = <T,>({
         })}
         {values.map((v, idx) => (
           <div
-            className=""
+            className="cursor-context"
             key={`th-v-${idx}`}
-            // onContextMenu={(e) => {
-            //   // handleContextMenu(e, String(v.label));
-            // }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              setShowContextMenu(e, v);
+            }}
           >
             {v.alias ? v.alias : `${v.aggregator} of ${String(v.label)}`}
           </div>
@@ -133,6 +158,30 @@ const Thead = <T,>({
             handleSort={handleSortLocal}
             inclusions={inclusions}
             setInclusions={setInclusions}
+          />
+        ) : null}
+      </div>
+      <div
+        data-display="closed"
+        ref={headerContextRef}
+        className="absolute w-[200px] bg-white
+           data-[display=open]:animate-appear data-[display=closed]:animate-dissapear"
+      >
+        {showHeaderContext ? (
+          <HeaderContext
+            top={0}
+            left={0}
+            column={column}
+            handleFormatterClick={() => {}}
+            setShowHeaderContext={(b: boolean) => {
+              if (headerContextRef.current) {
+                headerContextRef.current.setAttribute("data-display", "closed");
+              }
+              setTimeout(() => {
+                setShowHeaderContext(b);
+              }, 500);
+            }}
+            handleAliasClick={handleAliasClick}
           />
         ) : null}
       </div>

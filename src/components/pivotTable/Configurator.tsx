@@ -3,7 +3,7 @@ import Fields from "./dropTargets/Fields";
 import Rows from "./dropTargets/Rows";
 import Filters from "./dropTargets/Filters";
 import Columns from "./dropTargets/Columns";
-import { Row, ValueType } from "../../types";
+import { Column, Row, ValueType } from "../../types";
 import { DoubleChevronRight } from "./Icons";
 import { useState } from "react";
 
@@ -15,8 +15,8 @@ export interface ConfiguratorProps<T> {
   setValues: (values: ValueType<T>[]) => void;
   filters: string[];
   setFilters: (filters: string[]) => void;
-  columns: string[];
-  setColumns: (columns: string[]) => void;
+  columns: Column<T>[];
+  setColumns: (columns: Column<T>[]) => void;
 }
 
 const Configurator = <T,>({

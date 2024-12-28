@@ -59,11 +59,11 @@ const TableRow = <T,>({
     aggregateKey?: keyof T
   ) => {
     const result = Box<T[]>(data)
-      .map((x) => x.filter((y) => (y as T)[key1] == value1))
-      .map((x) => x.filter((y) => (y as T)[key2] || null == value2))
+      .map((x) => x.filter((y) => y[key1] == value1))
+      .map((x) => x.filter((y) => y[key2] == value2))
       .map((x) =>
         x.reduce((acc, cur) => {
-          // @ts-expect-error no sure about the type
+          // @ts-expect-error not sure about the type
           return acc + cur[aggregateKey];
         }, 0)
       )
@@ -178,7 +178,7 @@ const TableRow = <T,>({
                 return (
                   <div
                     key={`sr-v-${i}-${idx}-${idx2}`}
-                    className="text-right px-2"
+                    className="text-right px-2 text-sm"
                   >
                     {v.formatter ? v.formatter(sum as number) : sum}
                   </div>

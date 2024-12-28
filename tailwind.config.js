@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  safelist: ["grid-cols-2", "grid-cols-3", "grid-cols-4", "grid-cols-5"],
   theme: {
     extend: {
       keyframes: {
@@ -32,7 +33,7 @@ export default {
             transform: "translateX(95%)",
           },
         },
-        sliedInFromRight: {
+        slideInFromRight: {
           "0%": {
             transform: "translateX(95%)",
           },
@@ -45,7 +46,10 @@ export default {
         appear: "appear .3s ease-in-out forwards",
         dissapear: "dissapear .3s ease-in-out forwards",
         slideOutRight: "slideOutRight .3s ease-in-out forwards",
-        slideInFromRight: "sliedInFromRight .3s ease-in-out forwards",
+        slideInFromRight: "slideInFromRight .3s ease-in-out forwards",
+      },
+      cursor: {
+        context: "url(https://www.datacashreg.com/contextMenu2.svg), auto",
       },
     },
   },

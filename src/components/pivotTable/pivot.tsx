@@ -5,6 +5,7 @@ import Tbody from "./TBody";
 import Thead from "./Thead";
 import { useState, useEffect } from "react";
 import { Column } from "../../types";
+import AliasModal from "./modals/AliasModel";
 
 export interface PivotProps<T> {
   data: T[];
@@ -31,9 +32,7 @@ const Pivot = <T,>({
   const [formatterValue, setFormatterValue] = useState("");
   const [inclusions, setInclusions] = useState<string[]>([]);
 
-  useEffect(() => {
-    console.log("rendering due to exclusions change", inclusions);
-  }, [inclusions]);
+  useEffect(() => {}, [inclusions]);
 
   const handleAliasClick = () => {
     setShowAliasModal(true);
@@ -60,7 +59,7 @@ const Pivot = <T,>({
     setShowContextMenu(true);
   };
 
-  const handleAliasChange = (e) => {
+  const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAliasValue(e.target.value);
   };
 
@@ -69,8 +68,13 @@ const Pivot = <T,>({
   };
 
   const handleAliasConfirm = () => {
-    const selectedValue = values.filter((v) => v.label === column)[0];
-    const pos = values.findIndex((v) => v.label === column);
+    debugger;
+    const selectedValue = values.filter(
+      (v) => v.label.toString() === column!.label.toString()
+    )[0];
+    const pos = values.findIndex(
+      (v) => v.label.toString() === column!.label.toString()
+    );
     const newValues = [...values];
     newValues.splice(pos, 2, { ...selectedValue, alias: aliasValue });
     setValues(newValues);
@@ -115,36 +119,17 @@ const Pivot = <T,>({
 
   return (
     <div className="border rounded-md shadow-md flex-1">
-      {/* {showContextMenu ? (
-        <HeaderContext
-          top={points.y}
-          left={points.x}
-          column={column}
-          handleAliasClick={handleAliasClick}
-          handleFormatterClick={handleFormatterClick}
-        />
-      ) : null} */}
-      {/* {showUtilityContext ? (
-        <UtilityContext
-          top={points.y}
-          left={points.x}
-          column={column}
-          rows={rows}
-          data={data}
-          hide={() => setShowUtilityContext(false)}
-        />
-      ) : null} */}
-      {/* {showAliasModal ? (
+      {showAliasModal ? (
         <AliasModal
           isShowing={showAliasModal}
           hide={hideAliasModal}
           title={"Set Alias"}
-          column={column}
+          column={column!.label as string}
           value={aliasValue}
           onChange={handleAliasChange}
           confirm={handleAliasConfirm}
         />
-      ) : null} */}
+      ) : null}
       {/* {showFormatterModal ? (
         <FormatterModal
           isShowing={showFormatterModal}
@@ -174,14 +159,9 @@ const Pivot = <T,>({
           handleSort={handleSort}
           inclusions={inclusions}
           setInclusions={setInclusions}
+          handleAliasClick={handleAliasClick}
         />
-        <Tbody
-          rows={rows}
-          data={data}
-          values={values}
-          inclusions={inclusions}
-          setInclusions={setInclusions}
-        />
+        <Tbody rows={rows} data={data} values={values} />
       </div>
     </div>
   );
