@@ -24,10 +24,28 @@ export default {
             display: "none",
           },
         },
+        slideOutRight: {
+          "0%": {
+            transform: "translateX(0)",
+          },
+          "100%": {
+            transform: "translateX(95%)",
+          },
+        },
+        sliedInFromRight: {
+          "0%": {
+            transform: "translateX(95%)",
+          },
+          "100%": {
+            transform: "translateX(0)",
+          },
+        },
       },
       animation: {
         appear: "appear .3s ease-in-out forwards",
         dissapear: "dissapear .3s ease-in-out forwards",
+        slideOutRight: "slideOutRight .3s ease-in-out forwards",
+        slideInFromRight: "sliedInFromRight .3s ease-in-out forwards",
       },
     },
   },

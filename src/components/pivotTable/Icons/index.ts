@@ -13,6 +13,7 @@ import MinusSquare from "./MinusSquare";
 import ChevronDown from "./ChevronDown";
 import SortAZ from "./SortAZ";
 import SortZA from "./SortZA";
+import DoubleChevronRight from "./DoubleChevronRight";
 
 export {
   ArrowRoundDown,
@@ -22,4 +23,5 @@ export {
   ChevronDown,
   SortAZ,
   SortZA,
+  DoubleChevronRight,
 };

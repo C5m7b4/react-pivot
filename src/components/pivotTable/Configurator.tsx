@@ -4,6 +4,7 @@ import Rows from "./dropTargets/Rows";
 import Filters from "./dropTargets/Filters";
 import Columns from "./dropTargets/Columns";
 import { Row, ValueType } from "../../types";
+import { DoubleChevronRight } from "./Icons";
 
 export interface ConfiguratorProps<T> {
   data: T[];
@@ -17,6 +18,18 @@ export interface ConfiguratorProps<T> {
   setColumns: (columns: string[]) => void;
 }
 
+const handleExpanderClick = () => {
+  const div = document.querySelector('[query-id="configurator"]');
+  if (div) {
+    const status = div.getAttribute("data-display");
+    if (status === "expanded") {
+      div.setAttribute("data-display", "collapsed");
+    } else {
+      div.setAttribute("data-display", "expanded");
+    }
+  }
+};
+
 const Configurator = <T,>({
   data,
   rows,
@@ -25,9 +38,29 @@ const Configurator = <T,>({
   setValues,
 }: ConfiguratorProps<T>) => {
   return (
-    <div className="min-w-[350px] max-w-[350px] border ml-4 shadow-lg p-4">
-      <h3>PivotTable Fields</h3>
-      <div>
+    <div
+      query-id="configurator"
+      data-display="expanded"
+      className="min-w-[350px] max-w-[350px] border ml-4 shadow-lg p-4 rounded-l-lg group
+      data-[display=collapsed]:animate-slideOutRight data-[display=expanded]:animate-slideInFromRight"
+    >
+      <div className="flex gap-4">
+        <div
+          className="flex justify-center items-center"
+          onClick={handleExpanderClick}
+        >
+          <DoubleChevronRight
+            height={10}
+            width={10}
+            className="cursor-pointer group-data-[display=collapsed]:rotate-180 transition-all duration-300"
+          />
+        </div>
+        <h3 className=" group-data-[display=collapsed]:hidden">
+          PivotTable Fields
+        </h3>
+      </div>
+
+      <div className=" group-data-[display=collapsed]:hidden">
         <div className="rounded-lg shadow-md pl-2 pr-8 border mb-2">
           <input type="text" placeholder="search" />
         </div>
