@@ -5,9 +5,10 @@ export interface FieldsProps<T> {
   data: T[];
   rows: Row<T>[];
   values: ValueType<T>[];
+  query: string;
 }
 
-const Fields = <T,>({ data, rows, values }: FieldsProps<T>) => {
+const Fields = <T,>({ data, rows, values, query }: FieldsProps<T>) => {
   const [usedFields, setUsedFields] = useState<(keyof T)[] | undefined>([]);
 
   useEffect(() => {
@@ -30,7 +31,6 @@ const Fields = <T,>({ data, rows, values }: FieldsProps<T>) => {
   const handleCheck = () => {};
 
   const firstRecord: T = data[0];
-  console.log("firstRecord", firstRecord, "rows", rows);
 
   const hasBorder = (r: keyof T) => {
     if (usedFields) {
@@ -42,23 +42,47 @@ const Fields = <T,>({ data, rows, values }: FieldsProps<T>) => {
 
   return (
     <div className="border rounded-lg shadow-md p-2">
-      {Object.keys(firstRecord as object).map((r, i) => (
-        <div
-          className={`cursor-pointer mb-1`}
-          key={`field-${i}`}
-          style={{ border: hasBorder(r as keyof T) }}
-          draggable
-          onDragStart={(e) => handleDragStart(e, r as keyof T)}
-        >
-          <input
-            type="checkbox"
-            className="mr-2 ml-2"
-            checked={usedFields!.includes(r as keyof T) ? true : false}
-            onChange={handleCheck}
-          />
-          <label className="cursor-pointer">{r}</label>
-        </div>
-      ))}
+      {Object.keys(firstRecord as object).map((r, i) => {
+        if (query.length > 0) {
+          if (r.includes(query.toLowerCase())) {
+            return (
+              <div
+                className={`cursor-pointer mb-1`}
+                key={`field-${i}`}
+                style={{ border: hasBorder(r as keyof T) }}
+                draggable
+                onDragStart={(e) => handleDragStart(e, r as keyof T)}
+              >
+                <input
+                  type="checkbox"
+                  className="mr-2 ml-2"
+                  checked={usedFields!.includes(r as keyof T) ? true : false}
+                  onChange={handleCheck}
+                />
+                <label className="cursor-pointer">{r}</label>
+              </div>
+            );
+          }
+        } else {
+          return (
+            <div
+              className={`cursor-pointer mb-1`}
+              key={`field-${i}`}
+              style={{ border: hasBorder(r as keyof T) }}
+              draggable
+              onDragStart={(e) => handleDragStart(e, r as keyof T)}
+            >
+              <input
+                type="checkbox"
+                className="mr-2 ml-2"
+                checked={usedFields!.includes(r as keyof T) ? true : false}
+                onChange={handleCheck}
+              />
+              <label className="cursor-pointer">{r}</label>
+            </div>
+          );
+        }
+      })}
     </div>
   );
 };
