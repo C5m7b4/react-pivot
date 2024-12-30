@@ -32,4 +32,25 @@ export type ValueType<T> = {
 export type Column<T> = {
   label: keyof T;
   inclusions?: string[];
+  direction: SortDirection;
+  fn?: (
+    data: T[],
+    label: keyof T,
+    recordLabel: T[keyof T],
+    vlabel: keyof T
+  ) => string;
+};
+
+export type FilterType<T> = {
+  label: keyof T;
+};
+
+export type Header = {
+  title: string;
+  type: "number" | "string" | "boolean" | "date" | "money";
+  formatter: (value: string | number | boolean) => string;
+  alias: string;
+  visible: boolean;
+  order: number;
+  className?: string;
 };

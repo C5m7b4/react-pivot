@@ -3,6 +3,12 @@ import UtilityContext from "./contexts/UtilityContext";
 import { ChevronDown } from "./Icons";
 import { useState, useRef } from "react";
 import HeaderContext from "./contexts/HeaderContext";
+import { unique } from "../../utils/unique";
+import {
+  getColumnCount,
+  getUniqueColumns,
+  getUniqueColumnValues,
+} from "../../utils/arrayUtils";
 
 export interface THeadProps<T> {
   rows: Row<T>[];
@@ -15,6 +21,8 @@ export interface THeadProps<T> {
   inclusions: string[];
   setInclusions: (inclusions: string[]) => void;
   handleAliasClick: (column: string) => void;
+  handleFormatterClick: (column: string) => void;
+  columns: Column<T>[];
 }
 
 const Thead = <T,>({
@@ -27,6 +35,8 @@ const Thead = <T,>({
   inclusions,
   setInclusions,
   handleAliasClick,
+  handleFormatterClick,
+  columns,
 }: THeadProps<T>) => {
   const [showUtilityContext, setShowUtilityContext] = useState(false);
   const [showHeaderContext, setShowHeaderContext] = useState(false);
@@ -88,18 +98,14 @@ const Thead = <T,>({
     }, 500);
   };
 
-  const getColumns = () => {
-    if (values.length > 0) {
-      return "grid-cols-" + (values.length + 1).toString();
-    } else {
-      return "grid-cols-1";
-    }
-  };
-
   return (
     <div>
       <div
-        className={`relative grid ${getColumns()} font-medium text-lg border-b gap-4 pl-2`}
+        className={`relative grid ${getColumnCount(
+          values,
+          columns,
+          data
+        )} font-medium text-lg border-b gap-4 pl-2`}
       >
         {rows.map((r, i) => {
           if (i > 0) {
@@ -131,9 +137,24 @@ const Thead = <T,>({
             </div>
           );
         })}
+
+        {columns.map((column, i) => {
+          const uniques = getUniqueColumns(data, column.label);
+          return uniques.map((u, idx) => {
+            return (
+              <div
+                key={`col-${i}-${idx}`}
+                className="cursor-context border-r text-right px-2"
+              >
+                {String(u[column.label])}
+              </div>
+            );
+          });
+        })}
+
         {values.map((v, idx) => (
           <div
-            className="cursor-context"
+            className="cursor-context text-right px-2"
             key={`th-v-${idx}`}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -172,7 +193,7 @@ const Thead = <T,>({
             top={0}
             left={0}
             column={column}
-            handleFormatterClick={() => {}}
+            handleFormatterClick={handleFormatterClick}
             setShowHeaderContext={(b: boolean) => {
               if (headerContextRef.current) {
                 headerContextRef.current.setAttribute("data-display", "closed");

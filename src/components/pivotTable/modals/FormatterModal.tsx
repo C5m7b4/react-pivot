@@ -1,17 +1,17 @@
 import ReactDOM from "react-dom";
 import { useClickOutside } from "../hooks/useClickOutside";
 
-interface AliasModalProps {
+interface FormatModalProps {
   isShowing: boolean;
   hide: () => void;
   title: string;
   column: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   confirm: () => void;
 }
 
-const AliasModal = ({
+const FormatterModal = ({
   isShowing,
   hide,
   title,
@@ -19,7 +19,7 @@ const AliasModal = ({
   value,
   onChange,
   confirm,
-}: AliasModalProps) => {
+}: FormatModalProps) => {
   const ref = useClickOutside<HTMLDivElement>(() => {
     hide();
   });
@@ -50,14 +50,13 @@ const AliasModal = ({
               </div>
               <div className="p-4">
                 <div>
-                  Set an alias for "
-                  <span className="font-medium">{column}</span>"
-                  <input
-                    className="w-full rounded-lg shadow-sm pl-2 pr-8 border mb-2 
-                            focus:ring-1 outline-none ring-blue-300"
-                    value={value}
-                    onChange={onChange}
-                  />
+                  <div className="font-medium">
+                    Select a formatter for "{column}"
+                  </div>
+                  <select value={value} onChange={onChange}>
+                    <option value="formatCurrenty">Currency</option>
+                    <option value="formatNumber">Number</option>
+                  </select>
                 </div>
                 <div className="flex mt-2 border-t justify-between gap-4 px-6">
                   <div
@@ -82,4 +81,4 @@ const AliasModal = ({
     : null;
 };
 
-export default AliasModal;
+export default FormatterModal;

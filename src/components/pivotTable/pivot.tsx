@@ -1,11 +1,11 @@
 import { Row, SortDirection, ValueType } from "../../types";
 import { formatCurrency } from "../../utils/formatters";
-import HeaderContext from "./contexts/HeaderContext";
 import Tbody from "./TBody";
 import Thead from "./Thead";
 import { useState, useEffect } from "react";
 import { Column } from "../../types";
 import AliasModal from "./modals/AliasModel";
+import FormatterModal from "./modals/FormatterModal";
 
 export interface PivotProps<T> {
   data: T[];
@@ -13,6 +13,7 @@ export interface PivotProps<T> {
   setRows: (rows: Row<T>[]) => void;
   values: ValueType<T>[];
   setValues: (values: ValueType<T>[]) => void;
+  columns: Column<T>[];
 }
 
 const Pivot = <T,>({
@@ -21,10 +22,11 @@ const Pivot = <T,>({
   setRows,
   values,
   setValues,
+  columns,
 }: PivotProps<T>) => {
   const [showContextMenu, setShowContextMenu] = useState(false);
   // const [showUtilityContext, setShowUtilityContext] = useState(false);
-  const [points, setPoints] = useState({ x: 0, y: 0 });
+  // const [points, setPoints] = useState({ x: 0, y: 0 });
   const [column, setColumn] = useState<Column<T> | undefined>(undefined);
   const [showAliasModal, setShowAliasModal] = useState(false);
   const [showFormatterModal, setShowFormatterModal] = useState(false);
@@ -52,12 +54,12 @@ const Pivot = <T,>({
     setShowFormatterModal(false);
   };
 
-  const handleContextMenu = (e, c) => {
-    e.preventDefault();
-    setPoints({ x: e.pageX, y: e.pageY });
-    setColumn(c);
-    setShowContextMenu(true);
-  };
+  // const handleContextMenu = (e, c) => {
+  //   e.preventDefault();
+  //   setPoints({ x: e.pageX, y: e.pageY });
+  //   setColumn(c);
+  //   setShowContextMenu(true);
+  // };
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAliasValue(e.target.value);
@@ -68,7 +70,6 @@ const Pivot = <T,>({
   };
 
   const handleAliasConfirm = () => {
-    debugger;
     const selectedValue = values.filter(
       (v) => v.label.toString() === column!.label.toString()
     )[0];
@@ -85,8 +86,8 @@ const Pivot = <T,>({
   };
 
   const handleFormatterConfirm = () => {
-    const selectedValue = values.filter((v) => v.label === column)[0];
-    const pos = values.findIndex((v) => v.label === column);
+    const selectedValue = values.filter((v) => v.label === column!.label)[0];
+    const pos = values.findIndex((v) => v.label === column!.label);
     const newValues = [...values];
     let formatter = formatCurrency;
     switch (formatterValue) {
@@ -97,11 +98,11 @@ const Pivot = <T,>({
         formatter = formatCurrency;
         break;
     }
-    newValues.splice(pos, 2, { ...selectedValue, formatter: formatter });
+    newValues.splice(pos, 1, { ...selectedValue, formatter: formatter });
     setValues(newValues);
     setShowContextMenu(false);
     setShowFormatterModal(false);
-    // setColumn("");
+    setColumn("");
     setFormatterValue("");
   };
 
@@ -130,29 +131,21 @@ const Pivot = <T,>({
           confirm={handleAliasConfirm}
         />
       ) : null}
-      {/* {showFormatterModal ? (
+      {showFormatterModal ? (
         <FormatterModal
           isShowing={showFormatterModal}
           hide={hideFormatterModal}
           title={"Set Formatter"}
-          column={column}
+          column={column!.label.toString()}
           onChange={handleFormatterChange}
           confirm={handleFormatterConfirm}
         />
-      ) : null} */}
-      <div
-        className=""
-        // onClick={() => {
-        //   setShowContextMenu(false);
-        //}}
-      >
+      ) : null}
+      <div>
         <Thead
           rows={rows}
           data={data}
-          // setShowContextMenu={setShowContextMenu}
-          // handleSortDirection={handleSortDirection}
           values={values}
-          // handleContextMenu={handleContextMenu}
           column={column!}
           setRows={setRows}
           setColumn={setColumn}
@@ -160,8 +153,10 @@ const Pivot = <T,>({
           inclusions={inclusions}
           setInclusions={setInclusions}
           handleAliasClick={handleAliasClick}
+          handleFormatterClick={handleFormatterClick}
+          columns={columns}
         />
-        <Tbody rows={rows} data={data} values={values} />
+        <Tbody rows={rows} data={data} values={values} columns={columns} />
       </div>
     </div>
   );

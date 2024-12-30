@@ -3,7 +3,7 @@ import Fields from "./dropTargets/Fields";
 import Rows from "./dropTargets/Rows";
 import Filters from "./dropTargets/Filters";
 import Columns from "./dropTargets/Columns";
-import { Column, Row, ValueType } from "../../types";
+import { Column, FilterType, Row, ValueType } from "../../types";
 import { DoubleChevronRight } from "./Icons";
 import { useState } from "react";
 
@@ -13,8 +13,8 @@ export interface ConfiguratorProps<T> {
   setRows: (rows: Row<T>[]) => void;
   values: ValueType<T>[];
   setValues: (values: ValueType<T>[]) => void;
-  filters: string[];
-  setFilters: (filters: string[]) => void;
+  filters: FilterType<T>[];
+  setFilters: (filters: FilterType<T>[]) => void;
   columns: Column<T>[];
   setColumns: (columns: Column<T>[]) => void;
 }
@@ -25,6 +25,10 @@ const Configurator = <T,>({
   setRows,
   values,
   setValues,
+  columns,
+  setColumns,
+  filters,
+  setFilters,
 }: ConfiguratorProps<T>) => {
   const [query, setQuery] = useState("");
 
@@ -87,12 +91,12 @@ const Configurator = <T,>({
           </div>
           <div className="flex justify-between gap-4">
             <div className="w-1/2">
-              <Filters />
+              <Filters filters={filters} setFilters={setFilters} />
 
               <Rows rows={rows} setRows={setRows} />
             </div>
             <div className="w-1/2">
-              <Columns />
+              <Columns columns={columns} setColumns={setColumns} />
 
               <Values values={values} setValues={setValues} />
             </div>

@@ -1,16 +1,7 @@
 import { data, iData } from "./data/index";
 import PivotTable from "./components/pivotTable/PivotTable";
 import { formatDate, formatCurrency } from "./utils/formatters";
-
-export type Header = {
-  title: string;
-  type: "number" | "string" | "boolean";
-  formatter: (value: string | number | boolean) => string;
-  alias: string;
-  visible: boolean;
-  order: number;
-  className?: string;
-};
+import { Header } from "./types";
 
 const headers: Header[] = [
   {
@@ -33,7 +24,7 @@ const headers: Header[] = [
   },
   {
     title: "isLoyalty",
-    type: "number",
+    type: "boolean",
     formatter: (v: string | number | boolean) => v.toString(),
     alias: "Loyalty",
     visible: true,
@@ -42,7 +33,7 @@ const headers: Header[] = [
   },
   {
     title: "revenue",
-    type: "string",
+    type: "money",
     formatter: (v: string | number | boolean) => formatCurrency(v.toString()),
     alias: "Revenue",
     visible: true,
@@ -78,7 +69,7 @@ const headers: Header[] = [
   },
   {
     title: "orderDate",
-    type: "string",
+    type: "date",
     formatter: (v: string | number | boolean) => formatDate(v.toString()),
     alias: "Date",
     visible: true,

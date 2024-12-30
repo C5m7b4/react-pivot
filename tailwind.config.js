@@ -41,12 +41,34 @@ export default {
             transform: "translateX(0)",
           },
         },
+        slideDown: {
+          "0%": {
+            transform: "translateY(-100%)",
+            width: "50px",
+          },
+          "100%": {
+            transform: "translateY(0)",
+            width: "300px",
+          },
+        },
+        slideUp: {
+          "0%": {
+            transform: "translateY(0)",
+            width: "300px",
+          },
+          "100%": {
+            transform: "translateY(-90%)",
+            width: "50px",
+          },
+        },
       },
       animation: {
         appear: "appear .3s ease-in-out forwards",
         dissapear: "dissapear .3s ease-in-out forwards",
         slideOutRight: "slideOutRight .3s ease-in-out forwards",
         slideInFromRight: "slideInFromRight .3s ease-in-out forwards",
+        slideDown: "slideDown .3s ease-in-out forwards",
+        slideUp: "slideUp .3s ease-in-out forwards",
       },
       cursor: {
         context: "url(https://www.datacashreg.com/contextMenu2.svg), auto",

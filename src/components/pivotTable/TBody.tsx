@@ -3,15 +3,16 @@ import { unique } from "../../utils/unique";
 import { sort } from "../../utils/sort";
 import GT from "./body/GT";
 import TableRow from "./body/TableRow";
-import { Row, ValueType } from "../../types";
+import { Column, Row, ValueType } from "../../types";
 
 export interface TbodyProps<T> {
   data: T[];
   rows: Row<T>[];
   values: ValueType<T>[];
+  columns: Column<T>[];
 }
 
-const Tbody = <T,>({ rows, values, data }: TbodyProps<T>) => {
+const Tbody = <T,>({ rows, values, data, columns }: TbodyProps<T>) => {
   return (
     <div>
       {rows.map((row, i) => {
@@ -48,12 +49,13 @@ const Tbody = <T,>({ rows, values, data }: TbodyProps<T>) => {
               values={values}
               row={row}
               rows={rows}
-              record={record as T}
+              record={record}
+              columns={columns}
             />
           );
         });
       })}
-      {/* <GT values={values} data={data} /> */}
+      <GT values={values} data={data} columns={columns} />
     </div>
   );
 };

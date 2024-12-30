@@ -21,6 +21,7 @@ const Fields = <T,>({ data, rows, values, query }: FieldsProps<T>) => {
     e: React.DragEvent<HTMLDivElement>,
     fieldType: keyof T
   ) => {
+    console.log("drag start on fields");
     e.dataTransfer.setData("fieldType", fieldType as string);
     e.dataTransfer.effectAllowed = "copyMove";
     (e.target as HTMLDivElement).style.border = "1px solid #070707";
@@ -36,12 +37,12 @@ const Fields = <T,>({ data, rows, values, query }: FieldsProps<T>) => {
     if (usedFields) {
       return usedFields!.includes(r) ? "border-2 border-green-400" : "";
     } else {
-      return "'";
+      return "";
     }
   };
 
   return (
-    <div className="border rounded-lg shadow-md p-2">
+    <div data-testid="fields" className="border rounded-lg shadow-md p-2">
       {Object.keys(firstRecord as object).map((r, i) => {
         if (query.length > 0) {
           if (r.includes(query.toLowerCase())) {
@@ -66,6 +67,8 @@ const Fields = <T,>({ data, rows, values, query }: FieldsProps<T>) => {
         } else {
           return (
             <div
+              query-id={`query-field-${i}`}
+              data-testid={`field-${i}`}
               className={`cursor-pointer mb-1`}
               key={`field-${i}`}
               style={{ border: hasBorder(r as keyof T) }}

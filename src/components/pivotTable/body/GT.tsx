@@ -1,17 +1,52 @@
-import { grandTotalSum, grandTotalCount } from "../../../utils/arrayUtils";
+import { Column, ValueType } from "../../../types";
+import {
+  grandTotalSum,
+  grandTotalCount,
+  getColumnCount,
+} from "../../../utils/arrayUtils";
+import { Box } from "../../../utils/Box";
+import { unique } from "../../../utils/unique";
 
-const GT = ({ values, data }) => {
+interface GtProps<T> {
+  values: ValueType<T>[];
+  data: T[];
+  columns: Column<T>[];
+}
+
+const GT = <T,>({ values, data, columns }: GtProps<T>) => {
   return (
-    <tr style={{ borderTop: "2px solid black" }}>
-      <td></td>
-      <td>Grand Total</td>
+    <div className={`grid ${getColumnCount(values, columns, data)} border-t`}>
+      <div className="pl-6 font-medium">Grand Total</div>
+      {columns.map((c, idx) => {
+        const uniques = unique(data, c.label);
+        return uniques.map((u, uidx) => {
+          return values.map((v, vidx) => {
+            const uniqueValues = Box<T[]>(data)
+              .map((x) => x.filter((y) => y[c.label] === u[c.label]))
+              .map((x) =>
+                x.reduce((acc, cur) => {
+                  return acc + Number(cur[v.label]);
+                }, 0)
+              )
+              .fold((x) => x);
+            return (
+              <div
+                key={`gt-${idx}-${vidx}-{$uidx}`}
+                className="text-right font-medium px-4"
+              >
+                {uniqueValues}
+              </div>
+            );
+          });
+        });
+      })}
       {values.map((v, index) => {
         let total = 0;
         switch (v.aggregator) {
-          case "Count":
+          case "COUNT":
             total = grandTotalCount(data);
             break;
-          case "Sum":
+          case "SUM":
             total = grandTotalSum(data, v.label);
             break;
           default:
@@ -19,12 +54,16 @@ const GT = ({ values, data }) => {
             break;
         }
         return (
-          <td key={`gt-${index}`} style={{ fontWeight: "bold" }}>
+          <div
+            key={`gt-${index}`}
+            style={{ fontWeight: "bold" }}
+            className="text-right px-2"
+          >
             {total}
-          </td>
+          </div>
         );
       })}
-    </tr>
+    </div>
   );
 };
 

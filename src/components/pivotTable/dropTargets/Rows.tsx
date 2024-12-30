@@ -1,8 +1,8 @@
 import { Row } from "../../../types";
 import { doesRowExist } from "../../../utils/arrayUtils";
+import { getDragAfterElement } from "../../../utils/dragUtils";
 import { ChevronDown } from "../Icons";
 import { useClickOutside } from "../hooks/useClickOutside";
-import { useState } from "react";
 
 export interface RowProps<T> {
   rows: Row<T>[];
@@ -17,35 +17,44 @@ const Rows = <T,>({ rows, setRows }: RowProps<T>) => {
   });
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    console.log("dropped on rows");
+
     (e.target as HTMLDivElement).classList.remove("dragging");
     const fieldType = e.dataTransfer.getData("fieldType");
-    const newRow = {
-      label: fieldType,
+    const newRow: Row<T> = {
+      label: fieldType as keyof T,
       direction: "asc",
     };
+    console.log("created a new row");
 
     const isExisting = doesRowExist(rows, "label", fieldType);
+    console.log("isExisting", isExisting);
     if (isExisting.found) {
       const copy = rows.filter((r) => r.label != fieldType);
+      const container = document.querySelector('[query-id="filtered-rows"]');
       const afterElement = getDragAfterElement(
-        document.querySelector('[query-id="filtered-rows"]'),
+        container as HTMLDivElement,
         e.clientY
       );
 
       if (afterElement) {
         const pos = rows.findIndex((r) => (r.label = afterElement.innerHTML));
         copy.splice(pos, 0, newRow);
+        console.log("setting rows, step 1");
         setRows(copy);
       }
     } else {
       const newRows = [...rows, newRow];
+      console.log("setting rows, step 2");
+      console.log(newRows);
       setRows(newRows);
     }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    console.log("dragging over rows");
     e.preventDefault();
-    (e.target as HTMLDivElement).style.border = "2px solid #009879";
+    (e.target as HTMLDivElement).style.border = "2px solid #00000";
     e.dataTransfer.dropEffect = "move";
   };
 
@@ -64,30 +73,8 @@ const Rows = <T,>({ rows, setRows }: RowProps<T>) => {
     (e.target as HTMLDivElement).style.border = null;
   };
 
-  const getDragAfterElement = (container: HTMLDivElement, y: number) => {
-    const draggableElements = [
-      ...container.querySelectorAll(".draggable-item:not(.dragging)"),
-    ];
-
-    const el = draggableElements.reduce(
-      (closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-          return { offset: offset, element: child };
-        } else {
-          return { offset: 0, element: closest };
-        }
-      },
-      { offset: Number.NEGATIVE_INFINITY }
-    );
-
-    // @ts-expect-error investigate this
-    return el.element;
-  };
-
   const handleShowOptions = (
-    e: React.MouseEvent<HTMLDivElement>,
+    e: React.MouseEvent<HTMLSpanElement>,
     row: Row<T>
   ) => {
     const div = document.querySelector(
@@ -112,6 +99,8 @@ const Rows = <T,>({ rows, setRows }: RowProps<T>) => {
     <div>
       <div className="font-medium">Rows</div>
       <div
+        data-testid="filtered-rows"
+        query-id="filtered-rows"
         className="border rounded-md shadow-md p-1 min-h-[150px] max-h-[200px] overflow-y-auto"
         id="filtered-rows"
         onDragOver={handleDragOver}

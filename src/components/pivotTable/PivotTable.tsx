@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import NormalTable from "./NormalTable";
-import type { Header } from "../../App";
 import Pivot from "./pivot";
 import Configurator from "./Configurator";
-import { Row, ValueType } from "../../types";
+import { Column, FilterType, Header, Row, ValueType } from "../../types";
+import FiltersController from "./modals/FiltersController";
 
 export interface PivotTableProps<T extends object> {
   data: T[];
@@ -15,8 +15,8 @@ const PivotTable = <T extends object>({
   headers,
 }: PivotTableProps<T>) => {
   const [rows, setRows] = useState<Row<T>[]>([]);
-  const [filters, setFilters] = useState([]);
-  const [columns, setColumns] = useState([]);
+  const [filters, setFilters] = useState<FilterType<T>[]>([]);
+  const [columns, setColumns] = useState<Column<T>[]>([]);
   const [values, setValues] = useState<ValueType<T>[]>([]);
   const [usePivot, setUsePivot] = useState(false);
 
@@ -24,8 +24,10 @@ const PivotTable = <T extends object>({
 
   return (
     <div>
-      <h3>Pivot Table Example</h3>
-
+      <h3 data-testid="header-text">
+        {usePivot ? "Pivot Table Example" : "Basic Table Example"}
+      </h3>
+      <FiltersController filters={filters} headers={headers} data={data} />
       <div className="mb-2 flex justify-between place-items-center">
         <div>
           Total Records:{" "}
@@ -60,6 +62,7 @@ const PivotTable = <T extends object>({
             setRows={setRows}
             values={values}
             setValues={setValues}
+            columns={columns}
           />
         ) : (
           <NormalTable data={data} headers={headers} />
@@ -75,6 +78,7 @@ const PivotTable = <T extends object>({
             setColumns={setColumns}
             values={values}
             setValues={setValues}
+            headers={headers}
           />
         ) : null}
       </div>
