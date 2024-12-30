@@ -1,3 +1,6 @@
+import { Column, ValueType } from "../types";
+import { unique } from "./unique";
+
 export const arrSum = (arr, lookupField, lookupValue, valueField) => {
   return arr.reduce((acc, cur) => {
     if (cur[lookupField] === lookupValue) {
@@ -74,4 +77,34 @@ export const doesRowExist = (arr, field, value) => {
   return {
     found: false,
   };
+};
+
+export const getColumnCount = <T>(
+  values: ValueType<T>[],
+  columns: Column<T>[],
+  data: T[]
+) => {
+  // this is actually going to return an array of items that thave the unique value that we are targeting
+  // this might be able to be reconstructed to be a little more efficient
+  const colCount = columns
+    .map((c) => {
+      return getUniqueColumnValues(data, c.label);
+    })
+    .reduce((sum, cur) => sum + cur, 0);
+  const numberOfColumns = values.length + colCount + 1;
+  if (numberOfColumns > 0) {
+    return "grid-cols-" + numberOfColumns.toString();
+  } else {
+    return "grid-cols-1";
+  }
+};
+
+export const getUniqueColumnValues = <T>(data: T[], key: keyof T) => {
+  const result = unique(data, key);
+  return result.length;
+};
+
+export const getUniqueColumns = <T>(data: T[], key: keyof T) => {
+  const result = unique(data, key);
+  return result;
 };

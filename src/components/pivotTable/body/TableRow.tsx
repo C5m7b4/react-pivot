@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Box } from "../../../utils/Box";
 import { unique } from "../../../utils/unique";
-import { ValueType, Row } from "../../../types";
+import { ValueType, Row, Column } from "../../../types";
 import { PlusSquare, MinusSquare } from "../Icons";
 import { sort } from "../../../utils/sort";
+import { getColumnCount } from "../../../utils/arrayUtils";
 
 export interface TableRowProps<T> {
   i: number;
@@ -13,6 +14,7 @@ export interface TableRowProps<T> {
   data: T[];
   row: Row<T>;
   rows: Row<T>[];
+  columns: Column<T>[];
 }
 
 const TableRow = <T,>({
@@ -23,6 +25,7 @@ const TableRow = <T,>({
   data,
   row,
   rows,
+  columns,
 }: TableRowProps<T>) => {
   const [expanded, setExpanded] = useState(true);
   const [subrows, setSubrows] = useState<T[]>([]);
@@ -59,11 +62,11 @@ const TableRow = <T,>({
     aggregateKey?: keyof T
   ) => {
     const result = Box<T[]>(data)
-      .map((x) => x.filter((y) => (y as T)[key1] == value1))
-      .map((x) => x.filter((y) => (y as T)[key2] || null == value2))
+      .map((x) => x.filter((y) => y[key1] == value1))
+      .map((x) => x.filter((y) => y[key2] == value2))
       .map((x) =>
         x.reduce((acc, cur) => {
-          // @ts-expect-error no sure about the type
+          // @ts-expect-error not sure about the type
           return acc + cur[aggregateKey];
         }, 0)
       )
@@ -94,7 +97,11 @@ const TableRow = <T,>({
     <div>
       <div
         key={`tr-cell-${i}-${idx}`}
-        className={`grid grid-cols-${values.length + 1} gap-4 border-b`}
+        className={`grid ${getColumnCount(
+          values,
+          columns,
+          data
+        )} gap-4 border-b`}
       >
         <div className="mr-2 flex" onClick={toggle}>
           {expanded ? (
@@ -118,13 +125,36 @@ const TableRow = <T,>({
           {Object.keys(record).map((k, index) => {
             if (k === row.label) {
               return (
-                <div key={`fd-r-${idx}-${index}`} className="font-medium">
+                <div key={`fd-r-${idx}-${index}`} className="font-medium px-2">
                   {String(record[k])}
                 </div>
               );
             }
           })}
         </div>
+
+        {/* render out any column fields */}
+        {columns.map((c, index) => {
+          const uniques = unique(data, c.label);
+          return uniques.map((u, idx) => {
+            return values.map((v, vid) => {
+              // const sumOfCell = c.fn!(data, c.label, u[c.label], v.label);
+              const total = Box<T[]>(data)
+                .map((x) => x.filter((y) => y[c.label] === u[c.label])) // all of the unique values for the column
+                .map((x) => x.filter((y) => y[row.label] === record[row.label])) // all of the unique values for the row
+                .map((x) => x.reduce((acc, cur) => acc + cur[v.label], 0)) // sum of the values for the row
+                .fold((x) => x);
+              return (
+                <div
+                  key={`col-cell-${index}-${idx}-${vid}`}
+                  className="text-right font-medium px-2"
+                >
+                  {total}
+                </div>
+              );
+            });
+          });
+        })}
 
         {/* render out all value filter fields */}
         {values.map((v, index) => {
@@ -144,17 +174,47 @@ const TableRow = <T,>({
           return (
             <div
               key={`sr-${i}-${idx}-${index}`}
-              className={`ml-6 grid grid-cols-${values.length + 1} gap-4`}
+              className={`grid ${getColumnCount(values, columns, data)} gap-4`}
             >
               {Object.keys(sr as T[]).map((k, index) => {
                 if (k === rows[i + 1]?.label) {
                   return (
-                    <div key={`sr-r-${idx}-${index}`}>{`${
-                      sr[k as keyof T]
-                    }`}</div>
+                    <div key={`sr-r-${idx}-${index}`} className="pl-6">
+                      {`${sr[k as keyof T]}`}
+                    </div>
                   );
                 }
               })}
+
+              {columns.map((c, index) => {
+                const uniques = unique(data, c.label);
+                return uniques.map((u, idx) => {
+                  const uniqueValues = Box<T[]>(data)
+                    .map((x) => x.filter((y) => y[c.label] === u[c.label]))
+                    .fold((x) => x);
+
+                  let newArray = uniqueValues;
+
+                  rows.forEach((r, i) => {
+                    const filtered = newArray.filter(
+                      (y) => y[r.label] === sr[r.label]
+                    );
+                    newArray = filtered;
+                  });
+
+                  return values.map((v, idx) => {
+                    const total = newArray.reduce((acc, cur) => {
+                      return acc + Number(cur[v.label]);
+                    }, 0);
+                    return (
+                      <div key={`col-sub-${idx}`} className="text-right px-2">
+                        {total}
+                      </div>
+                    );
+                  });
+                });
+              })}
+
               {values.map((v, idx2) => {
                 let sum: number | number[] = 0;
 
@@ -178,7 +238,7 @@ const TableRow = <T,>({
                 return (
                   <div
                     key={`sr-v-${i}-${idx}-${idx2}`}
-                    className="text-right px-2"
+                    className="text-right px-2 text-sm"
                   >
                     {v.formatter ? v.formatter(sum as number) : sum}
                   </div>

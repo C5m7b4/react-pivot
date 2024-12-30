@@ -1,4 +1,5 @@
 export const formatCurrency = (price: string) => {
+  if (!price) return price;
   price = price.replace("$", "").replace(",", "");
   const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
